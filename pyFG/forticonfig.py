@@ -147,7 +147,7 @@ class FortiConfig(object):
                 text += '  %sunset %s\n' % (indent, param)
             else:
                 # We ignore quotes when comparing values
-                if str(self.get_param(param)).replace('"', '') != str(target.get_param(param)).replace('"', ''):
+                if py23_compat.text_type(self.get_param(param)).replace('"', '') != py23_compat.text_type(target.get_param(param)).replace('"', ''):
                     text += '  %sset %s %s\n' % (indent, param, target.get_param(param))
 
         for param in ot_params:
@@ -268,7 +268,7 @@ class FortiConfig(object):
             - **value** (string): Value you want to set
         """
 
-        self.parameters[param] = str(value)
+        self.parameters[param] = py23_compat.text_type(value)
 
     def del_param(self, param):
         """

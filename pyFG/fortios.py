@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from pyFG.forticonfig import FortiConfig
-from pyFG import py23_compat
 from pyFG import exceptions
 
 
@@ -110,15 +109,6 @@ class FortiOS(object):
         logger.debug('Closing connection to device %s' % self.hostname)
         self.ssh.close()
 
-    @staticmethod
-    def _read_wrapper(data):
-        """Ensure unicode always returned on read."""
-        # Paramiko (strangely) in PY3 returns an int here.
-        if isinstance(data, int):
-            data = chr(data)
-        # Ensure unicode
-        return py23_compat.text_type(data)
-
     def execute_command(self, command):
         """
         This method will execute the commands on the device without as if you were just connected to it (it will not
@@ -146,12 +136,8 @@ class FortiOS(object):
         error_chan = chan.makefile_stderr()
         output_chan = chan.makefile()
 
-        error = ''
-        output = ''
-        for e in error_chan.read():
-            error = error + self._read_wrapper(e)
-        for o in output_chan.read():
-            output = output + self._read_wrapper(o)
+        error = error_chan.read().decode("utf-8")
+        output = output_chan.read().decode("utf-8")
 
         if len(error) > 0:
             msg = '%s %s:\n%s\n%s' % (err_msg, self.ssh.get_host_keys().keys()[0], command, error)
